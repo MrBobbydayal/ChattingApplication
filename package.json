@@ -16,14 +16,10 @@
     "url": "git+https://github.com/hiteshchoudhary/apihub.git"
   },
   "keywords": [
-    "apihub",
-    "freeapi",
-    "open source",
-    "api as a service",
-    "public apis",
-    "kitchen sink"
+   "bobby",
+   "chattingApp"
   ],
-  "author": "Hitesh Choudhary",
+  "author": "Bobbydayal",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/hiteshchoudhary/apihub/issues"

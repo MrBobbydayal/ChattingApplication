@@ -10,11 +10,6 @@ import {
   getStaticFilePath,
   removeLocalFile,
 } from "../../../utils/helpers.js";
-import {
-  emailVerificationMailgenContent,
-  forgotPasswordMailgenContent,
-  sendEmail,
-} from "../../../utils/mail.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {

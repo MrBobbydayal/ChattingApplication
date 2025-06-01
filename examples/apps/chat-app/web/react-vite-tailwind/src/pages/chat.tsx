@@ -413,7 +413,7 @@ const ChatPage = () => {
 
   return (
     <>
-      <AddChatModal
+    <AddChatModal
         open={openAddChat}
         onClose={() => {
           setOpenAddChat(false);
