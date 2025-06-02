@@ -1,5 +1,5 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import statusCodesJson from "../../json/status-codes.json";
+const statusCodesJson = await import('../../json/status-codes.json', { assert: { type: 'json' } }).then(mod => mod.default);
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 
