@@ -1,4 +1,4 @@
 [build]
   base = "apihub/examples/apps/chat-app/web/react-vite-tailwind"
-  publish = "apihub/examples/apps/chat-app/web/react-vite-tailwind/dist"
+  publish = "dist"
   command = "npm install && npm run build"
