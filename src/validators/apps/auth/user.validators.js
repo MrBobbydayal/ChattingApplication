@@ -22,6 +22,17 @@ const userRegisterValidator = () => {
       .optional()
       .isIn(AvailableUserRoles)
       .withMessage("Invalid user role"),
+
+    (req, res, next) => {
+  console.log("🔥 req.files:", req.files);
+  console.log("🎯 req.files.avatar:", req.files?.avatar);
+  if (!req.files?.avatar?.length) {
+    return res.status(400).json({ message: "Avatar is required" });
+  }
+  next();
+},
+
+
   ];
 };
 

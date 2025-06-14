@@ -34,6 +34,18 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
   const { email, username, password, role } = req.body;
 
+ let avatar = null;
+
+if (req.files && req.files.avatar?.length > 0) {
+  const attachment = req.files.avatar[0];
+  avatar = {
+    url: getStaticFilePath(req, attachment.filename),
+    localPath: getLocalPath(attachment.filename),
+  };
+} else {
+  throw new ApiError(400, "Avatar is required");
+}
+
   const existedUser = await User.findOne({
     $or: [{ username }, { email }],
   });
@@ -42,6 +54,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "User with email or username already exists", []);
   }
   const user = await User.create({
+    avatar,
     email,
     password,
     username,

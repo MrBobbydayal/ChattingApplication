@@ -10,11 +10,9 @@ const AuthContext = createContext<{
   user: UserInterface | null;
   token: string | null;
   login: (data: { username: string; password: string }) => Promise<void>;
-  register: (data: {
-    email: string;
-    username: string;
-    password: string;
-  }) => Promise<void>;
+  // 
+  register: (data: FormData) => Promise<void>;
+
   logout: () => Promise<void>;
 }>({
   user: null,
@@ -55,21 +53,35 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   // Function to handle user registration
-  const register = async (data: {
-    email: string;
-    username: string;
-    password: string;
-  }) => {
-    await requestHandler(
-      async () => await registerUser(data),
-      setIsLoading,
-      () => {
-        alert("Account created successfully! Go ahead and login.");
-        navigate("/login"); // Redirect to the login page after successful registration
-      },
-      alert // Display error alerts on request failure
-    );
-  };
+  // const register = async (data: {
+  //   email: string;
+  //   username: string;
+  //   password: string;
+  // }) => {
+  //   await requestHandler(
+  //     async () => await registerUser(data),
+  //     setIsLoading,
+  //     () => {
+  //       alert("Account created successfully! Go ahead and login.");
+  //       navigate("/login"); // Redirect to the login page after successful registration
+  //     },
+  //     alert // Display error alerts on request failure
+  //   );
+  // };
+
+
+  const register = async (data: FormData) => {
+  await requestHandler(
+    async () => await registerUser(data), // registerUser expects FormData
+    setIsLoading,
+    () => {
+      alert("Account created successfully! Go ahead and login.");
+      navigate("/login"); // Redirect after successful registration
+    },
+    alert // Show error if request fails
+  );
+};
+
 
   // Function to handle user logout
   const logout = async () => {

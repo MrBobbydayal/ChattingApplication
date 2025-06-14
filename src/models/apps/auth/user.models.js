@@ -12,16 +12,13 @@ import {
 
 const userSchema = new Schema(
   {
-    avatar: {
-      type: {
-        url: String,
+   avatar: {
+        type: {
+          url: String,
         localPath: String,
-      },
-      default: {
-        url: `https://via.placeholder.com/200x200.png`,
-        localPath: "",
-      },
-    },
+        },
+         required: true,
+        },
     username: {
       type: String,
       required: true,

@@ -1,8 +1,6 @@
 // Importing necessary components and hooks
-import { LockClosedIcon } from "@heroicons/react/20/solid";
+import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import Button from "../components/Button";
-import Input from "../components/Input";
 import { useAuth } from "../context/AuthContext";
 
 // Component for the Login page
@@ -29,42 +27,50 @@ const Login = () => {
   const handleLogin = async () => await login(data);
 
   return (
-    <div className="flex justify-center items-center flex-col h-screen w-screen">
-      <h1 className="text-3xl font-bold">FreeAPI Chat App</h1>
-      <div className="max-w-5xl w-1/2 p-8 flex justify-center items-center gap-5 flex-col bg-dark shadow-md rounded-2xl my-16 border-secondary border-[1px]">
-        <h1 className="inline-flex items-center text-2xl mb-4 flex-col">
-          <LockClosedIcon className="h-8 w-8 mb-2" /> Login
-        </h1>
-        {/* Input for entering the username */}
-        <Input
-          placeholder="Enter the username..."
+    <div className="flex items-center justify-center min-h-screen px-4 py-6">
+  <div className="w-full max-w-xs p-6 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/30 shadow-xl">
+   <h1 className="text-3xl font-semibold text-center text-white mb-6">
+     <span className="text-blue-400">Bobby ChatApp</span> 
+    </h1>
+    <h1 className="text-3xl font-semibold text-center text-white mb-6">
+      Login
+    </h1>
+
+    <form className="space-y-4" onSubmit={handleLogin}>
+      <div>
+        <label className="block text-sm mb-1">Username</label>
+        <input
+          type="text"
+          placeholder="username"
+          className="w-full px-4 py-2 rounded-lg bg-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={data.username}
-          onChange={handleDataChange("username")}
+         onChange={handleDataChange("username")}
         />
-        {/* Input for entering the password */}
-        <Input
-          placeholder="Enter the password..."
+      </div>
+      <div>
+        <label className="block text-sm  mb-1">Password</label>
+        <input
           type="password"
-          value={data.password}
+          placeholder="**********"
+          className="w-full px-4 py-2 rounded-lg bg-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
+           value={data.password}
           onChange={handleDataChange("password")}
         />
-        {/* Button to initiate the login process */}
-        <Button
-          disabled={Object.values(data).some((val) => !val)}
-          fullWidth
-          onClick={handleLogin}
+      </div>
+      <div className="pt-4">
+        Didn't have account? <NavLink to='/register'  className="link link-warning text-blue-400">Register</NavLink>
+      </div>
+      <div className="pt-4">
+        <button
+          type="submit"
+          className="w-full py-2 rounded-lg bg-gradient-to-r from-blue-500 to-green-400 text-white font-semibold hover:opacity-90 transition"
         >
           Login
-        </Button>
-        {/* Link to the registration page */}
-        <small className="text-zinc-300">
-          Don&apos;t have an account?{" "}
-          <a className="text-primary hover:underline" href="/register">
-            Register
-          </a>
-        </small>
+        </button>
       </div>
-    </div>
+    </form>
+  </div>
+</div>
   );
 };
 

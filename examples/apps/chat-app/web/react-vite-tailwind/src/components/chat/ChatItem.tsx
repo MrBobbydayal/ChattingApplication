@@ -131,6 +131,7 @@ const ChatItem: React.FC<{
             </div>
           ) : (
             <img
+            placeholder="img4"
               src={getChatObjectMetadata(chat, user!).avatar}
               className="w-12 h-12 rounded-full"
             />

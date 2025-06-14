@@ -14,7 +14,7 @@ import AddChatModal from "../components/chat/AddChatModal";
 import ChatItem from "../components/chat/ChatItem";
 import MessageItem from "../components/chat/MessageItem";
 import Typing from "../components/chat/Typing";
-import Input from "../components/Input";
+import Input from "../components/Input"; // Assuming this Input component already has appropriate styling for dark/light themes or can be adjusted.
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import {
@@ -51,9 +51,7 @@ const ChatPage = () => {
   const currentChat = useRef<ChatListItemInterface | null>(null);
 
   // To keep track of the setTimeout function
-  // const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const typingTimeoutRef = useRef<number | null>(null);
-
 
   // Define state variables and their initial values using 'useState'
   const [isConnected, setIsConnected] = useState(false); // For tracking socket connection
@@ -76,8 +74,11 @@ const ChatPage = () => {
 
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]); // To store files attached to messages
 
+  // State to manage which panel is visible on small screens
+  const [showChatList, setShowChatList] = useState(true);
+
   /**
-   *  A  function to update the last message of a specified chat to update the chat list
+   *  A  function to update the last message of a specified chat to update the chat list
    */
   const updateChatLastMessage = (
     chatToUpdateId: string,
@@ -317,6 +318,8 @@ const ChatPage = () => {
       currentChat.current = null;
       // Remove the currentChat from local storage.
       LocalStorage.remove("currentChat");
+      // On smaller screens, go back to the chat list after leaving a chat
+      setShowChatList(true);
     }
     // Update the chats by removing the chat that the user left.
     setChats((prev) => prev.filter((c) => c._id !== chat._id));
@@ -362,6 +365,8 @@ const ChatPage = () => {
       socket?.emit(JOIN_CHAT_EVENT, _currentChat.current?._id);
       // Fetch the messages for the current chat.
       getMessages();
+      // On initial load, if a chat is selected, show the chat window on small screens
+      setShowChatList(false);
     }
     // An empty dependency array ensures this useEffect runs only once, similar to componentDidMount.
   }, []);
@@ -415,7 +420,7 @@ const ChatPage = () => {
 
   return (
     <>
-    <AddChatModal
+      <AddChatModal
         open={openAddChat}
         onClose={() => {
           setOpenAddChat(false);
@@ -425,9 +430,15 @@ const ChatPage = () => {
         }}
       />
 
-      <div className="w-full justify-between items-stretch h-screen flex flex-shrink-0">
-        <div className="w-1/3 relative ring-white overflow-y-auto px-4">
-          <div className="z-10 w-full sticky top-0 bg-dark py-4 flex justify-between items-center gap-4">
+      <div className="w-full justify-center items-stretch h-screen flex flex-shrink-0 p-4 md:p-8"> {/* Added padding to main container */}
+        {/* Chat List Pane */}
+        <div
+          className={classNames(
+            "w-full md:w-1/3 relative overflow-y-auto p-4 rounded-3xl bg-dark-gradient border border-gray-700 shadow-lg", // Applied morf styles for dark background
+            currentChat.current && !showChatList ? "hidden md:block" : "block"
+          )}
+        >
+          <div className="z-10 w-full sticky top-0 bg-dark-gradient py-4 flex justify-between items-center gap-4"> {/* Adjusted background for sticky header */}
             <button
               type="button"
               className="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-xl text-sm px-5 py-4 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900 flex-shrink-0"
@@ -442,6 +453,8 @@ const ChatPage = () => {
               onChange={(e) =>
                 setLocalSearchQuery(e.target.value.toLowerCase())
               }
+              // Consider adding a prop to your Input component to change its appearance for light background
+              // e.g., inputClassName="bg-gray-100 text-gray-900 border-blue-500"
             />
             <button
               onClick={() => setOpenAddChat(true)}
@@ -485,6 +498,7 @@ const ChatPage = () => {
                       currentChat.current = chat;
                       setMessage("");
                       getMessages();
+                      setShowChatList(false); // Hide chat list, show chat window on small screens
                     }}
                     key={chat._id}
                     onChatDelete={(chatId) => {
@@ -494,6 +508,7 @@ const ChatPage = () => {
                       if (currentChat.current?._id === chatId) {
                         currentChat.current = null;
                         LocalStorage.remove("currentChat");
+                        setShowChatList(true); // Go back to chat list on small screens
                       }
                     }}
                   />
@@ -501,10 +516,25 @@ const ChatPage = () => {
               })
           )}
         </div>
-        <div className="w-2/3 border-l-[0.1px] border-secondary">
+        {/* Chat Window Pane */}
+        {/* Applying login page-like styles here */}
+        <div
+          className={classNames(
+            "w-full md:w-2/3 border-l-[0.1px] md:border-l-[0.1px] border-secondary md:ml-4 rounded-3xl  shadow-lg overflow-hidden flex flex-col", // Added rounded, white background, shadow, flex-col
+            currentChat.current && !showChatList ? "block" : "hidden md:block"
+          )}
+        >
           {currentChat.current && currentChat.current?._id ? (
             <>
-              <div className="p-4 sticky top-0 bg-dark z-20 flex justify-between items-center w-full border-b-[0.1px] border-secondary">
+              {/* Chat Header */}
+              <div className="p-4 sticky top-0 z-20 flex justify-between items-center w-full border-b-[0.1px] border-gray-200 bg-white text-gray-800"> {/* Adjusted colors for light background */}
+                {/* Back button for small screens */}
+                <button
+                  className="md:hidden text-blue-600 mr-2" // Blue color for back button
+                  onClick={() => setShowChatList(true)}
+                >
+                  &larr;
+                </button>
                 <div className="flex justify-start items-center w-max gap-3">
                   {currentChat.current.isGroupChat ? (
                     <div className="w-12 relative h-12 flex-shrink-0 flex justify-start items-center flex-nowrap">
@@ -513,17 +543,18 @@ const ChatPage = () => {
                         .map((participant, i) => {
                           return (
                             <img
+                            placeholder="img2"
                               key={participant._id}
                               src={participant.avatar.url}
                               className={classNames(
-                                "w-9 h-9 border-[1px] border-white rounded-full absolute outline outline-4 outline-dark",
+                                "w-9 h-9 border-[1px] border-white rounded-full absolute outline outline-4 outline-white", // Changed outline to white
                                 i === 0
                                   ? "left-0 z-30"
                                   : i === 1
-                                  ? "left-2 z-20"
-                                  : i === 2
-                                  ? "left-4 z-10"
-                                  : ""
+                                    ? "left-2 z-20"
+                                    : i === 2
+                                      ? "left-4 z-10"
+                                      : ""
                               )}
                             />
                           );
@@ -531,6 +562,7 @@ const ChatPage = () => {
                     </div>
                   ) : (
                     <img
+                    placeholder="img3"
                       className="h-14 w-14 rounded-full flex flex-shrink-0 object-cover"
                       src={
                         getChatObjectMetadata(currentChat.current, user!).avatar
@@ -538,10 +570,10 @@ const ChatPage = () => {
                     />
                   )}
                   <div>
-                    <p className="font-bold">
+                    <p className="font-bold text-gray-800"> {/* Text color adjusted */}
                       {getChatObjectMetadata(currentChat.current, user!).title}
                     </p>
-                    <small className="text-zinc-400">
+                    <small className="text-zinc-500"> {/* Text color adjusted */}
                       {
                         getChatObjectMetadata(currentChat.current, user!)
                           .description
@@ -550,22 +582,24 @@ const ChatPage = () => {
                   </div>
                 </div>
               </div>
+              {/* Message Window */}
               <div
                 className={classNames(
-                  "p-8 overflow-y-auto flex flex-col-reverse gap-6 w-full",
+                  "p-8 overflow-y-auto flex flex-col-reverse gap-6 w-full flex-grow", // Added flex-grow
                   attachedFiles.length > 0
-                    ? "h-[calc(100vh-336px)]"
-                    : "h-[calc(100vh-176px)]"
+                    ? "h-[calc(100vh-336px)] md:h-[calc(100vh-336px)]" // Consider re-evaluating these h-calc values if the layout shifts significantly
+                    : "h-[calc(100vh-176px)] md:h-[calc(100vh-176px)]"
                 )}
                 id="message-window"
               >
                 {loadingMessages ? (
-                  <div className="flex justify-center items-center h-[calc(100%-88px)]">
+                  <div className="flex justify-center items-center h-full">
                     <Typing />
                   </div>
                 ) : (
                   <>
                     {isTyping ? <Typing /> : null}
+                    {/* MessageItem will also need style adjustments if it assumes a dark background */}
                     {messages?.map((msg) => {
                       return (
                         <MessageItem
@@ -574,19 +608,22 @@ const ChatPage = () => {
                           isGroupChatMessage={currentChat.current?.isGroupChat}
                           message={msg}
                           deleteChatMessage={deleteChatMessage}
+                          // You might pass a prop here to indicate light theme to MessageItem
+                          // e.g., isLightTheme={true}
                         />
                       );
                     })}
                   </>
                 )}
               </div>
+              {/* Attached Files Preview */}
               {attachedFiles.length > 0 ? (
-                <div className="grid gap-4 grid-cols-5 p-4 justify-start max-w-fit">
+                <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 p-4 justify-start max-w-full overflow-x-auto border-t-[0.1px] border-gray-200 bg-white"> {/* Adjusted background */}
                   {attachedFiles.map((file, i) => {
                     return (
                       <div
                         key={i}
-                        className="group w-32 h-32 relative aspect-square rounded-xl cursor-pointer"
+                        className="group w-32 h-32 relative aspect-square rounded-xl cursor-pointer flex-shrink-0"
                       >
                         <div className="absolute inset-0 flex justify-center items-center w-full h-full bg-black/40 group-hover:opacity-100 opacity-0 transition-opacity ease-in-out duration-150">
                           <button
@@ -610,7 +647,8 @@ const ChatPage = () => {
                   })}
                 </div>
               ) : null}
-              <div className="sticky top-full p-4 flex justify-between items-center w-full gap-2 border-t-[0.1px] border-secondary">
+              {/* Message Input Area */}
+              <div className="sticky bottom-0 p-4 flex justify-between items-center w-full gap-2 border-t-[0.1px] border-gray-200 bg-white"> {/* Adjusted background and border for light theme */}
                 <input
                   hidden
                   id="attachments"
@@ -626,7 +664,7 @@ const ChatPage = () => {
                 />
                 <label
                   htmlFor="attachments"
-                  className="p-4 rounded-full bg-dark hover:bg-secondary"
+                  className="p-4 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600 flex-shrink-0 cursor-pointer" // Blue accent for attachment button
                 >
                   <PaperClipIcon className="w-6 h-6" />
                 </label>
@@ -640,18 +678,21 @@ const ChatPage = () => {
                       sendChatMessage();
                     }
                   }}
+                  // IMPORTANT: Ensure your Input component's internal styling
+                  // supports a light background or pass a prop for it.
+                  // For example, it might need classes like `bg-gray-50 text-gray-900 border-blue-300 focus:ring-blue-500`
                 />
                 <button
                   onClick={sendChatMessage}
                   disabled={!message && attachedFiles.length <= 0}
-                  className="p-4 rounded-full bg-dark hover:bg-secondary disabled:opacity-50"
+                  className="p-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 flex-shrink-0" // Blue accent for send button
                 >
                   <PaperAirplaneIcon className="w-6 h-6" />
                 </button>
               </div>
             </>
           ) : (
-            <div className="w-full h-full flex justify-center items-center">
+            <div className="w-full h-full flex justify-center items-center text-gray-600 bg-white rounded-3xl shadow-lg"> {/* Adjusted text color for light background */}
               No chat selected
             </div>
           )}
