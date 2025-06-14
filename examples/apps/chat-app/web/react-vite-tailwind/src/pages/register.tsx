@@ -3,8 +3,13 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
 const Register = () => {
-  const [data, setData] = useState({
-    avatar: null as File | null,
+  const [data, setData] = useState<{
+    avatar: File | null;
+    email: string;
+    username: string;
+    password: string;
+  }>({
+    avatar: null,
     email: "",
     username: "",
     password: "",
@@ -13,7 +18,8 @@ const Register = () => {
   const { register } = useAuth();
 
   const handleDataChange =
-    (name: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    (name: "email" | "username" | "password") =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       setData({
         ...data,
         [name]: e.target.value,
@@ -32,10 +38,13 @@ const Register = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    if (data.avatar) {
-      formData.append("avatar", data.avatar);
+    if (!data.email || !data.username || !data.password || !data.avatar) {
+      alert("Please fill all fields and upload an avatar.");
+      return;
     }
+
+    const formData = new FormData();
+    formData.append("avatar", data.avatar);
     formData.append("email", data.email);
     formData.append("username", data.username);
     formData.append("password", data.password);
