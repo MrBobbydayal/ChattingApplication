@@ -29,12 +29,14 @@ const loginUser = (data: { username: string; password: string }) => {
   return apiClient.post("/users/login", data);
 };
 
-const registerUser = (data: {
-  email: string;
-  password: string;
-  username: string;
-}) => {
-  return apiClient.post("/users/register", data);
+// 
+
+const registerUser = (data: FormData) => {
+  return apiClient.post("/users/register", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };
 
 const logoutUser = () => {
